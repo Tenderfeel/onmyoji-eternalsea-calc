@@ -20,20 +20,15 @@
               </p>
             </div>
             <div class="col-6">
-              <p class="m-0">
-                吸血姫1： {{ arakawa.cure - vamp1.cure - 45 }}
-              </p>
-              <p class="m-0">
-                吸血姫2： {{ arakawa.cure - vamp2.cure - 45 }}
-              </p>
+              <p class="m-0">吸血姫1： {{ arakawa.cure - vamp1.cure - 45 }}</p>
+              <p class="m-0">吸血姫2： {{ arakawa.cure - vamp2.cure - 45 }}</p>
             </div>
           </div>
         </li>
         <li class="list-group-item">
           <div class="row">
             <div class="col-6">
-              <strong class="d-inline-block me-2">吸血姫生存判定</strong
-              ><br />
+              <strong class="d-inline-block me-2">吸血姫生存判定</strong><br />
               <small class="fs-7">4回攻撃に耐えられるか</small>
             </div>
             <div class="col-6">
@@ -123,13 +118,7 @@
 <script>
 import Vamp from "./components/Vamp.vue";
 import Arakawa from "./components/Arakawa.vue";
-
-function decimalRound(value, x = 100) {
-  return Math.round(value * x) / x;
-}
-function decimalFloor(value, x = 100) {
-  return Math.floor(value * x) / x;
-}
+import { decimalRound, decimalFloor } from "./util";
 
 export default {
   name: "First",
@@ -349,13 +338,6 @@ export default {
         1 +
         decimalRound(new Array(mp).fill(null).reduce((acc) => acc + 0.08, 0))
       );
-      // return (
-      //   1 +
-      //   Math.round(
-      //     new Array(mp).fill(null).reduce((acc, cur) => acc + 0.08, 0) * 100
-      //   ) /
-      //     100
-      // );
     },
   },
 };
