@@ -1,7 +1,8 @@
 <template>
   <div>
     <h1 class="fs-5 fw-bold">パーティ編成</h1>
-    <p>この計算機で想定している編成について。</p>
+    <p>この計算機で想定している編成について。<br>
+    <a href="https://kamigame.jp/%E9%99%B0%E9%99%BD%E5%B8%AB/page/165153589273057484.html" target="_blank" rel="nofollow noopener">神ゲーの攻略情報</a>をベースにしています。</p>
     <section class="mt-5">
       <h2 class="fs-5 fw-bold">1回戦目の編成</h2>
       <p>
@@ -43,12 +44,12 @@
           </tr>
           <tr>
             <th scope="row">鬼王酒呑童子（4〜6）</th>
-            <td>火霊 or なんでも<br />②HP ④HP ⑥HP</td>
+            <td>火霊 or なんでも</td>
             <td>氷祭りに耐えられない場合は社鯰2セット<br />座ってるだけ</td>
           </tr>
           <tr>
             <th scope="row">座敷童子（4〜6）</th>
-            <td>火霊 or なんでも<br />②HP ④HP ⑥HP</td>
+            <td>火霊 or なんでも</td>
             <td>氷祭りに耐えられない場合は社鯰2セット<br />開幕鬼火補給</td>
           </tr>
         </tbody>
@@ -58,8 +59,8 @@
     <section class="mt-5">
       <h2 class="fs-5 fw-bold">2回戦目の編成</h2>
       <p>
-        最後の煉獄茨木童子の追加ダメージによってボスのHP388888を稼ぐ戦法。<br />
-        茨木童子の行動時に鬼火8であることが必須になるので、座敷童子はスキル3固定で煉獄より前に動くようにする。
+        最後の煉獄茨木童子の追加ダメージによってボスのHP388888を削る戦法。<br />
+        茨木童子の行動時に鬼火が満タンになることが必須。座敷童子はスキル3固定で煉獄より前に動くようにする。
       </p>
       <table class="table">
         <thead>
@@ -107,5 +108,6 @@
         </tbody>
       </table>
     </section>
+    <p class="text-center"><a href="https://twitter.com/vesperfeel">&copy; Vesperfeel</a></p>
   </div>
 </template>

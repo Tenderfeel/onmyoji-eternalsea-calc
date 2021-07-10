@@ -243,23 +243,23 @@ export default {
       if (typeof targetDef !== "number") return 0;
       const atk = this.enmAtk * (this.enmDmg / 100); // 攻撃力
       const def = 1 - targetDef / (300 + targetDef); // 受け側の防御力
-      const baseDmg = Math.round(atk * 0.4 * 2 * def); // 基準ダメ
-      
+      const baseDmg = decimalRound(atk * 0.4 * 2 * def); // 基準ダメ
+
       const damage1 = (baseDmg * 1.5); // 初回
       const hp = 1 - (targetHp - damage1) / targetHp; // 1回後残HP
 
       let damage2 = baseDmg * 1.5;
-      damage2 = Math.round(damage2 - baseDmg * hp);
+      damage2 = decimalRound(damage2 - baseDmg * hp);
 
       const hp2 = 1 - (targetHp - (damage1 + damage2)) / targetHp; // 2回目後残HP
 
       let damage3 = baseDmg * 1.5;
-      damage3 = Math.round(damage3 - baseDmg * hp2)
+      damage3 = decimalRound(damage3 - baseDmg * hp2)
 
       const hp3 = 1 - (targetHp - (damage1 + damage2 + damage3)) / targetHp; // 3回目後残HP
 
       let damage4 = baseDmg * 1.5;
-      damage4 = Math.round(damage4 - baseDmg * hp3);
+      damage4 = decimalRound(damage4 - baseDmg * hp3);
 
       const total = damage1 + damage2 + damage3 + damage4;
       return total;
