@@ -172,24 +172,17 @@ export default {
     },
     /**
      * 吸血姫HP残量割合
+     * 回復量は鬼王のパッシブで3割になる
      */
     vamp1Hp() {
-      const cure = this.arakawa.cure - this.vamp1.cure - 45;
+      const cure = (this.arakawa.cure - this.vamp1.cure) * 0.3;
       const damage = this.enemyAttack(this.vamp1.def, this.vamp1.hp);
-      const parcent = (this.vamp1.hp - damage) / this.vamp1.hp;
-      return Math.min(
-        decimalFloor(1 - parcent, 1000),
-        decimalFloor(1 - cure / this.vamp1.hp, 1000) - 0.03
-      );
+      return decimalFloor(1 - (this.vamp1.hp - damage + cure) / this.vamp1.hp, 1000);
     },
     vamp2Hp() {
-      const cure = this.arakawa.cure - this.vamp2.cure - 45;
+      const cure = (this.arakawa.cure - this.vamp2.cure) * 0.3;
       const damage = this.enemyAttack(this.vamp2.def, this.vamp2.hp);
-      const parcent = (this.vamp2.hp - damage) / this.vamp2.hp;
-      return Math.min(
-        decimalFloor(1 - parcent, 1000),
-        decimalFloor(1 - cure / this.vamp2.hp, 1000) - 0.03
-      );
+      return decimalFloor(1 - ((this.vamp2.hp - damage) + cure) / this.vamp2.hp, 1000);
     },
     // 吸血姫1与ダメ（星あり）
     vamp1Adg() {
@@ -250,17 +243,25 @@ export default {
       if (typeof targetDef !== "number") return 0;
       const atk = this.enmAtk * (this.enmDmg / 100); // 攻撃力
       const def = 1 - targetDef / (300 + targetDef); // 受け側の防御力
-      const aDown = this.arakawa.down / 100; // 荒川ダメ軽減
-      const baseDmg = Math.round(atk * 0.4 * def);
-      const damage1 = baseDmg * 2 * 1.5; // 初回
-      const hp = 1 - (targetHp - damage1) / targetHp;
-      let damage2 = baseDmg * 2 * 1.5;
-      damage2 = Math.round(damage2 - baseDmg * 2 * hp);
-      let damage3 = baseDmg * 2;
-      let damage4 = baseDmg * 3;
-      damage4 = damage4 - damage4 * aDown;
-      const total = damage1 + damage2 + damage3 + damage4;
+      const baseDmg = Math.round(atk * 0.4 * 2 * def); // 基準ダメ
+      
+      const damage1 = (baseDmg * 1.5); // 初回
+      const hp = 1 - (targetHp - damage1) / targetHp; // 1回後残HP
 
+      let damage2 = baseDmg * 1.5;
+      damage2 = Math.round(damage2 - baseDmg * hp);
+
+      const hp2 = 1 - (targetHp - (damage1 + damage2)) / targetHp; // 2回目後残HP
+
+      let damage3 = baseDmg * 1.5;
+      damage3 = Math.round(damage3 - baseDmg * hp2)
+
+      const hp3 = 1 - (targetHp - (damage1 + damage2 + damage3)) / targetHp; // 3回目後残HP
+
+      let damage4 = baseDmg * 1.5;
+      damage4 = Math.round(damage4 - baseDmg * hp3);
+
+      const total = damage1 + damage2 + damage3 + damage4;
       return total;
     },
     /**
@@ -271,7 +272,7 @@ export default {
      * 凶骨 鬼火1ごとにダメ8%UP
      * 餓者髑髏 ダメ10% or 25% UP
      * 極寒結界潮汐免疫バフ ダメ50%UP
-     * 氷祭り荒川死亡で被ダメ15%ダウン
+     * 氷祭り荒川死亡でボス被ダメ15%ダウン
      * @param {number} atk 攻撃力
      * @param {number} hp HP
      * @param {number} dmg 会心DMG
