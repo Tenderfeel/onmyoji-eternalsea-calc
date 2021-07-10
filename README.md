@@ -1,24 +1,5 @@
-# t
+# 永世の海計算機
 
-## Project setup
-```
-yarn install
-```
+4F28秒編成の必要火力計算ができます  
 
-### Compiles and hot-reloads for development
-```
-yarn serve
-```
-
-### Compiles and minifies for production
-```
-yarn build
-```
-
-### Lints and fixes files
-```
-yarn lint
-```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+(https://onmyoji-eternalsea-calc.vercel.app/)[https://onmyoji-eternalsea-calc.vercel.app/]
