@@ -20,8 +20,8 @@
               </p>
             </div>
             <div class="col-6">
-              <p class="m-0">吸血姫1： {{ arakawa.cure - vamp1.cure - 45 }}</p>
-              <p class="m-0">吸血姫2： {{ arakawa.cure - vamp2.cure - 45 }}</p>
+              <p class="m-0">吸血姫1： {{ Math.round((arakawa.cure - vamp1.cure)) }}</p>
+              <p class="m-0">吸血姫2： {{ Math.round((arakawa.cure - vamp2.cure)) }}</p>
             </div>
           </div>
         </li>
@@ -129,15 +129,17 @@ export default {
   data() {
     return {
       vamp1: { atk: 8001, hp: 12989, dmg: 243, def: 541, cure: 0, grade: 0 },
+      // vamp1: { atk: 7687, hp: 14139, dmg: 227, def: 552, cure: 0, grade: 0 },
+      // vamp1: { atk: 7663, hp: 13311, dmg: 222, def: 559, cure: 0, grade: 0 },
       vamp2: { atk: 7507, hp: 13673, dmg: 253, def: 566, cure: 0, grade: 0 },
       arakawa: {
         atk: 9074,
-        dmg: 187,
+        dmg: 186.61,
         cure: 0,
         down: 0,
       },
-      enmDeff: 380, // 敵防御（仮）
-      enmAtk: 6025, // 敵攻撃
+      enmDeff: 485, // 敵防御（仮）
+      enmAtk: 6050, // 敵攻撃
       enmDmg: 150, // 敵会心DMG
     };
   },
@@ -157,32 +159,32 @@ export default {
      * - 敵を一人倒すと与ダメ300%アップ、被ダメ15%ダウン
      */
     test2Vamp1() {
-      const cure = this.arakawa.cure - this.vamp1.cure;
+      const cure = (this.arakawa.cure - this.vamp1.cure);
+      const dmg = this.enemyAttack(this.vamp1.def, this.vamp1.hp, cure)
       return (
-        this.vamp1.hp + cure - this.enemyAttack(this.vamp1.def, this.vamp1.hp) >
+        this.vamp1.hp + cure - dmg >
         0
       );
     },
     test2Vamp2() {
-      const cure = this.arakawa.cure - this.vamp2.cure;
+      const cure = (this.arakawa.cure - this.vamp2.cure);
       return (
-        this.vamp2.hp + cure - this.enemyAttack(this.vamp2.def, this.vamp2.hp) >
+        this.vamp2.hp + cure - this.enemyAttack(this.vamp2.def, this.vamp2.hp, cure) >
         0
       );
     },
     /**
      * 吸血姫HP残量割合
-     * 回復量は鬼王のパッシブで3割になる
      */
     vamp1Hp() {
-      const cure = (this.arakawa.cure - this.vamp1.cure) * 0.3;
-      const damage = this.enemyAttack(this.vamp1.def, this.vamp1.hp);
-      return decimalFloor(1 - (this.vamp1.hp - damage + cure) / this.vamp1.hp, 1000);
+      const cure = (this.arakawa.cure - this.vamp1.cure);
+      const damage = this.enemyAttack(this.vamp1.def, this.vamp1.hp, cure);
+      return decimalFloor(1 - ((this.vamp1.hp + cure) - damage) / this.vamp1.hp, 1000);
     },
     vamp2Hp() {
-      const cure = (this.arakawa.cure - this.vamp2.cure) * 0.3;
-      const damage = this.enemyAttack(this.vamp2.def, this.vamp2.hp);
-      return decimalFloor(1 - ((this.vamp2.hp - damage) + cure) / this.vamp2.hp, 1000);
+      const cure = (this.arakawa.cure - this.vamp2.cure);
+      const damage = this.enemyAttack(this.vamp2.def, this.vamp2.hp, cure);
+      return decimalFloor(1 - ((this.vamp2.hp + cure) - damage) / this.vamp2.hp, 1000);
     },
     // 吸血姫1与ダメ（星あり）
     vamp1Adg() {
@@ -232,11 +234,13 @@ export default {
   methods: {
     /**
      * 敵攻撃ダメージ計算（氷祭り）
-     * 攻撃力の40%のダメージを4回
+     * 攻撃力の40%のダメージを4回（実は5回の間違いでは？）
+     * 4回目の攻撃で荒川が死亡
      * 潮汐の影響を受けていると80%（200%UP）
      * 敵1人撃破ごとに与ダメージ300%アップ
      * 潮音：初回ダメージ50%アップ
      * 鬼王：HP1%損失ごとにダメージ減少バフ1%アップ
+     * 荒川：死亡後ダメージダウン効果獲得
      * @return {number} 4回攻撃の予測総ダメージ
      */
     enemyAttack(targetDef, targetHp) {
@@ -244,8 +248,9 @@ export default {
       const atk = this.enmAtk * (this.enmDmg / 100); // 攻撃力
       const def = 1 - targetDef / (300 + targetDef); // 受け側の防御力
       const baseDmg = decimalRound(atk * 0.4 * 2 * def); // 基準ダメ
+      const baseDmg2 = decimalRound(atk * 0.4 * 3 * def); // 荒川死亡後ダメ
 
-      const damage1 = (baseDmg * 1.5); // 初回
+      const damage1 = decimalRound(baseDmg * 1.5); // 初回
       const hp = 1 - (targetHp - damage1) / targetHp; // 1回後残HP
 
       let damage2 = baseDmg * 1.5;
@@ -261,7 +266,12 @@ export default {
       let damage4 = baseDmg * 1.5;
       damage4 = decimalRound(damage4 - baseDmg * hp3);
 
-      const total = damage1 + damage2 + damage3 + damage4;
+      let damage5 = baseDmg2;
+      // 鬼王のダウン効果を上書きしてる？
+      damage5 = decimalRound(damage5 - (baseDmg2 * (this.arakawa.down/100)));
+
+      const total = damage1 + damage2 + damage3 + damage4 + damage5;
+      // console.log(total, damage1, damage2 ,damage3 , damage4, damage5)
       return total;
     },
     /**

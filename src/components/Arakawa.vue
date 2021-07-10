@@ -74,7 +74,7 @@ export default {
     },
 
     calc() {
-      // 死亡時回復量 攻撃力の125%回復
+      // 死亡時回復量 攻撃力の125%回復（なんでか44少ない）
       this.data.cure = Math.round(this.data.atk * 1.25 * (this.data.dmg / 100));
 
       // 最初の攻撃力300ごとに追加で1%のダメージダウン、最大30%
