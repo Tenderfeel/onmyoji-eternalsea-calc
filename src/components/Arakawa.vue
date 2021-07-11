@@ -39,7 +39,12 @@
 
     <div class="mt-3 row">
       <p class="col-6"><small>死亡時回復量：</small>{{ data.cure }}</p>
-      <p class="col-6"><small>死亡後ダメ軽減：</small>{{ data.down }}%</p>
+      <p class="col-6"><small>死亡後ダメ軽減：</small>{{ data.down }}%
+        <i
+          class="bi bi-question-circle"
+          title="攻撃力に依存します"
+        ></i>
+      </p>
     </div>
   </fieldset>
 </template>
@@ -74,11 +79,11 @@ export default {
     },
 
     calc() {
-      // 死亡時回復量 攻撃力の125%回復（なんでか44少ない）
+      // 死亡時回復量 攻撃力の125%回復
       this.data.cure = Math.round(this.data.atk * 1.25 * (this.data.dmg / 100));
 
-      // 最初の攻撃力300ごとに追加で1%のダメージダウン、最大30%
-      this.data.down = Math.floor(this.data.atk / 300) + 10;
+      // 最初の攻撃力300ごとに追加で1%のダメージダウン、最大+30%
+      this.data.down = Math.min(Math.floor(this.data.atk / 300) + 10, 40);
     },
   },
   mounted() {

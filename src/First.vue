@@ -4,6 +4,7 @@
       <Vamp :id="1" :status="vamp1" @change="vamp1 = $event" />
       <Vamp :id="2" :status="vamp2" @change="vamp2 = $event" class="mt-3" />
       <Arakawa class="mt-3" :status="arakawa" @change="arakawa = $event" />
+      <p class="fs-7 mt-2">数値は小数点２桁まで入力すると精度が高まります</p>
     </div>
     <div class="col-md-6">
       <ul class="list-group">
@@ -20,8 +21,18 @@
               </p>
             </div>
             <div class="col-6">
-              <p class="m-0">吸血姫1： {{ Math.round((arakawa.cure - vamp1.cure)) }}</p>
-              <p class="m-0">吸血姫2： {{ Math.round((arakawa.cure - vamp2.cure)) }}</p>
+              <p class="m-0">
+                吸血姫1： {{ Math.round((arakawa.cure - vamp1.cure)) }}
+                <i v-if="Math.round((arakawa.cure - vamp1.cure)) < 150" 
+                class="bi bi-exclamation-triangle-fill text-warning"
+                title="乱数で不足する可能性があります"></i>
+              </p>
+              <p class="m-0">
+                吸血姫2： {{ Math.round((arakawa.cure - vamp2.cure)) }}
+                <i v-if="Math.round((arakawa.cure - vamp2.cure)) < 150" 
+                class="bi bi-exclamation-triangle-fill text-warning"
+                title="乱数で不足する可能性があります"></i>
+              </p>
             </div>
           </div>
         </li>
@@ -129,8 +140,6 @@ export default {
   data() {
     return {
       vamp1: { atk: 8001, hp: 12989, dmg: 243, def: 541, cure: 0, grade: 0 },
-      // vamp1: { atk: 7687, hp: 14139, dmg: 227, def: 552, cure: 0, grade: 0 },
-      // vamp1: { atk: 7663, hp: 13311, dmg: 222, def: 559, cure: 0, grade: 0 },
       vamp2: { atk: 7507, hp: 13673, dmg: 253, def: 566, cure: 0, grade: 0 },
       arakawa: {
         atk: 9074,
@@ -151,40 +160,28 @@ export default {
         this.vamp2.cure < this.arakawa.cure
       );
     },
-    /**
-     * 吸血姫生存判定
-     * ＜氷祭り＞
-     * - 攻撃力40%相当のダメージ4回
-     * - 潮汐の影響を受けてると200%アップ
-     * - 敵を一人倒すと与ダメ300%アップ、被ダメ15%ダウン
-     */
+
     test2Vamp1() {
-      const cure = (this.arakawa.cure - this.vamp1.cure);
-      const dmg = this.enemyAttack(this.vamp1.def, this.vamp1.hp, cure)
-      return (
-        this.vamp1.hp + cure - dmg >
-        0
-      );
+      return this.test2(this.vamp1)
     },
     test2Vamp2() {
-      const cure = (this.arakawa.cure - this.vamp2.cure);
-      return (
-        this.vamp2.hp + cure - this.enemyAttack(this.vamp2.def, this.vamp2.hp, cure) >
-        0
-      );
+      return this.test2(this.vamp2)
     },
+
     /**
      * 吸血姫HP残量割合
      */
     vamp1Hp() {
       const cure = (this.arakawa.cure - this.vamp1.cure);
-      const damage = this.enemyAttack(this.vamp1.def, this.vamp1.hp, cure);
-      return decimalFloor(1 - ((this.vamp1.hp + cure) - damage) / this.vamp1.hp, 1000);
+      const dmg1 = this.enemyAttack(this.vamp1.def, this.vamp1.hp);
+      const dmg2 = this.enemyLastAttack(this.vamp1.def, this.vamp1.hp);
+      return decimalFloor(1 - ((this.vamp1.hp + cure) - dmg1 - dmg2) / this.vamp1.hp, 1000);
     },
     vamp2Hp() {
       const cure = (this.arakawa.cure - this.vamp2.cure);
-      const damage = this.enemyAttack(this.vamp2.def, this.vamp2.hp, cure);
-      return decimalFloor(1 - ((this.vamp2.hp + cure) - damage) / this.vamp2.hp, 1000);
+      const dmg1 = this.enemyAttack(this.vamp2.def, this.vamp2.hp, cure);
+      const dmg2 = this.enemyLastAttack(this.vamp2.def, this.vamp2.hp);
+      return decimalFloor(1 - ((this.vamp2.hp + cure) - dmg1 - dmg2) / this.vamp2.hp, 1000);
     },
     // 吸血姫1与ダメ（星あり）
     vamp1Adg() {
@@ -248,7 +245,6 @@ export default {
       const atk = this.enmAtk * (this.enmDmg / 100); // 攻撃力
       const def = 1 - targetDef / (300 + targetDef); // 受け側の防御力
       const baseDmg = decimalRound(atk * 0.4 * 2 * def); // 基準ダメ
-      const baseDmg2 = decimalRound(atk * 0.4 * 3 * def); // 荒川死亡後ダメ
 
       const damage1 = decimalRound(baseDmg * 1.5); // 初回
       const hp = 1 - (targetHp - damage1) / targetHp; // 1回後残HP
@@ -266,14 +262,24 @@ export default {
       let damage4 = baseDmg * 1.5;
       damage4 = decimalRound(damage4 - baseDmg * hp3);
 
+
+      const total = damage1 + damage2 + damage3 + damage4;
+      return total;
+    },
+    /**
+     * 敵5回目攻撃ダメージ計算（氷祭り）
+     */
+    enemyLastAttack(targetDef) {
+      const atk = this.enmAtk * (this.enmDmg / 100); // 攻撃力
+      const def = 1 - targetDef / (300 + targetDef); // 受け側の防御力
+      const baseDmg2 = decimalRound(atk * 0.4 * 3 * def); // 荒川死亡後ダメ
+
       let damage5 = baseDmg2;
       // 鬼王のダウン効果を上書きしてる？
       damage5 = decimalRound(damage5 - (baseDmg2 * (this.arakawa.down/100)));
-
-      const total = damage1 + damage2 + damage3 + damage4 + damage5;
-      // console.log(total, damage1, damage2 ,damage3 , damage4, damage5)
-      return total;
+      return damage5
     },
+
     /**
      * 吸血姫ダメージ計算
      * 攻撃力 x スキル倍率 x スキル追加ダメ x 御魂ダメ
@@ -306,6 +312,37 @@ export default {
       // 氷祭り荒川死亡で被ダメ15%ダウン
       return result - Math.round(result * 0.15);
     },
+
+    /**
+     * 吸血姫生存判定
+     * ＜氷祭り＞
+     * - 攻撃力40%相当のダメージ4回（5回？）
+     * - 潮汐の影響を受けてると200%アップ
+     * - 敵を一人倒すと与ダメ300%アップ、被ダメ15%ダウン
+     */
+    test2(target) {
+      const cure = (this.arakawa.cure - target.cure);
+      // 4回目までの予測ダメージ
+      const dmg = this.enemyAttack(target.def, target.hp, cure)
+      // 5回目の予測ダメージ
+      const dmg2 = this.enemyLastAttack(target.def, target.hp);
+
+      // 治療量不足で潮汐解除できない
+      if (target.cure > this.arakawa.cure) {
+        return false
+      }
+      
+      // 4回目まで耐えられない
+      if (target.hp - dmg < 0) {
+        return false
+      }
+      
+      // 4回目後HP + 回復 - 5回目ダメージ
+      return (
+        ((target.hp - dmg + cure) - dmg2) > 0
+      );
+    },
+
     /**
      * 吸血姫パッシブ計算
      * HP1%ダウンごとにダメージ4%UP
