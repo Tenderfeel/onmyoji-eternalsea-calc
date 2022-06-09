@@ -9,17 +9,18 @@
   },
   "dependencies": {
     "@babel/runtime-corejs3": "7.14.7",
-    "vue": "3.1.4",
+    "vue": "^3.2.37",
     "vue-router": "4"
   },
   "devDependencies": {
+    "@babel/eslint-parser": "^7.18.2",
     "@vue/cli-plugin-babel": "~4.5.0",
     "@vue/cli-plugin-eslint": "~4.5.0",
     "@vue/cli-service": "~4.5.0",
     "@vue/compiler-sfc": "^3.0.0-0",
-    "babel-eslint": "^10.1.0",
     "eslint": "^6.7.2",
-    "eslint-plugin-vue": "^7.0.0-0"
+    "eslint-plugin-vue": "^7.0.0-0",
+    "vue-eslint-parser": "^9.0.2"
   },
   "eslintConfig": {
     "root": true,
@@ -30,8 +31,9 @@
       "plugin:vue/vue3-essential",
       "eslint:recommended"
     ],
+    "parser": "vue-eslint-parser",
     "parserOptions": {
-      "parser": "babel-eslint"
+        "parser": "@babel/eslint-parser"
     },
     "rules": {}
   },

@@ -9,7 +9,7 @@
           <li class="nav-item">
             <router-link to="/second" class="nav-link">2回戦</router-link>
           </li>
-          <li></li>
+          <li><router-link to="/dayflower" class="nav-link">蛍草編成</router-link></li>
         </ul>
       </div>
 
